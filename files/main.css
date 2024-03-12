@@ -238,7 +238,7 @@ pre>code {
         line-height: 0;
         padding-top: 4px;
         text-align: center;
-        background: #fff url("/files/menu.png") 6px 4px no-repeat;
+        background: #fff url("../files/menu.png") 6px 4px no-repeat;
         background-size: 26px 26px
     }
 
