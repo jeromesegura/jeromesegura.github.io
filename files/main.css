@@ -208,7 +208,7 @@ pre>code {
 }
 
 .site-nav .menu-icon {
-    display: block;
+    display: none;
 }
 
 .site-nav .page-link {
