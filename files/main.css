@@ -135,7 +135,7 @@ pre>code {
 
 .wrapper {
     max-width: -webkit-calc(700px - (30px * 2));
-    max-width: calc(700px - (30px * 2));
+    max-width: calc(800px - (30px * 2));
     margin-right: auto;
     margin-left: auto;
     padding-right: 30px;
@@ -353,6 +353,8 @@ pre>code {
 }
 
 .footer-col .social-links .social-link {
+    font-size: 16px;
+    line-height: 38px;
     display: flex;
     width: 100%;
     align-items: flex-start;
