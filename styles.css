@@ -332,7 +332,7 @@ pre>code {
 @media screen and (max-width: 500px) {
     .profile-pic {
         float: none;
-        margin-bottom: 20px;
+        margin-bottom: 0px;
         margin-left: 0px
     }
 }
