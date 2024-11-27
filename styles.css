@@ -565,26 +565,26 @@ h1.not-found-title {
     letter-spacing: -1px
 }
 
-.media-logos
+.press-logos
 {
   text-align: center;
   margin-top: 20px;
 }
 
-.media-logos img
+.press-logos img
 {
   height: 40px !important;
   margin: 15px 25px;
 }
 
-.article_text p.media-logos > a
+.article_text p.press-logos > a
 {
   border: none;
 }
 
 @media screen and (max-width: 500px)
 {
-  .media-logos img
+  .press-logos img
   {
     height: 23px !important;
     margin: 7px 12px;
