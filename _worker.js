@@ -6,45 +6,6 @@
  */
 
 /**
- * DataDome default config.
- */
-
-
-// URIRegex (DATADOME_URI_REGEX) and URIRegexExclusion (DATADOME_URI_REGEX_EXCLUSION)
-// are regex used to match URI.
-//
-// The logic is:
-//   Does URI match with URIRegexExclusion if present?
-//     if yes stop
-//       if no Does URI match with URIRegex if present?
-//       if no stop
-//       if yes, send to API
-//
-// Example with a URIRegexExclusion:
-//   DATADOME_URI_REGEX_EXCLUSION /\.(js|css|jpg|jpeg|png|ico|gif|tiff|svg|woff|woff2|ttf|eot|mp4|otf)$/
-//
-// Default behavior excludes static assets.
-// To disable a regex, set null value.
-let DATADOME_URI_REGEX = null;
-let DATADOME_URL_REGEX = null;
-let DATADOME_URI_REGEX_EXCLUSION =
-    /\.(avi|flv|mka|mkv|mov|mp4|mpeg|mpg|mp3|flac|ogg|ogm|opus|wav|webm|webp|bmp|gif|ico|jpeg|jpg|png|svg|svgz|swf|eot|otf|ttf|woff|woff2|css|less|js|map)$/i;
-let DATADOME_HOSTNAME_REGEX_EXCLUSION = null;
-let DATADOME_JS_HOSTNAME_REGEX_EXCLUSION = null;
-let DATADOME_JS_URI_REGEX_EXCLUSION = null;
-let DATADOME_URL_REGEX_EXCLUSION = null;
-let DATADOME_JS_URL_REGEX = null;
-let DATADOME_JS_URL_REGEX_EXCLUSION = null;
-// List of IPs to exclude from DataDome protection. CIDR notation is accepted.
-/** @type Array<string> */
-let DATADOME_IP_FILTERING = null;
-let DATADOME_ENABLE_DEBUGGING = false;
-let DATADOME_ENABLE_GRAPHQL_SUPPORT = false;
-let DATADOME_ENABLE_REFERRER_RESTORATION = false;
-let DATADOME_ENABLE_VOLATILE_SESSION = false;
-let DATADOME_MAXIMUM_BODY_SIZE = 25 * 1024; // 25 Kilobytes
-
-/**
  * DataDome constants.
  */
 
@@ -61,148 +22,73 @@ const datadomeIPFilteringIndex = {
     ipv6Exact: new Set(),
 };
 
-let tagOptions = DATADOME_JS_TAG_OPTIONS;
-if (
-    (DATADOME_JS_ENDPOINT != null && DATADOME_JS_ENDPOINT !== '') ||
-    DATADOME_ENABLE_VOLATILE_SESSION
-) {
-    let tagOptionsObject = {};
-    // Parse the JSON string to create the object...
-    if (tagOptions != null && tagOptions !== '') {
-        try {
-            tagOptionsObject = JSON.parse(tagOptions);
-        } catch (e) {
-            console.log('Parsing error on DATADOME_JS_TAG_OPTIONS, ' + e);
-        }
-    }
-
-    if (DATADOME_JS_ENDPOINT) {
-        tagOptionsObject.endpoint = DATADOME_JS_ENDPOINT;
-    }
-    if (DATADOME_ENABLE_VOLATILE_SESSION) {
-        tagOptionsObject.volatileSession = true;
-    }
-
-    // ... then put it back as a string.
-    tagOptions = JSON.stringify(tagOptionsObject);
-}
-if (DATADOME_IP_FILTERING != null) {
-    if (Array.isArray(DATADOME_IP_FILTERING)) {
-        initializeIPFilteringIndex();
-    } else {
-        DATADOME_IP_FILTERING = null;
-        console.log('DATADOME_IP_FILTERING must be an Array - IP Filtering is not effective');
-    }
-}
-
 /**
  * @typedef {function(Request): Promise<Response>} FetchFunction
  */
 
-/**
- * Entry point for the module on fetch events.
- * Activate DataDome protection on Cloudflare pages.
- * @param {FetchFunction} [nextHandler] - Custom handler (on fetch) to call after DataDome.
- * @param {object} [options] - Overrides for DataDome parameters.
- * @returns {void}
- */
-function activateDataDome(nextHandler, options = {}) {
-    // Override hard-coded parameters.
-    const { licenseKey, timeOut } = options;
-
-    //if (licenseKey != null) {
-    //    DATADOME_LICENSE_KEY = licenseKey;
-    //}
-
-    if (timeOut != null) {
-        DATADOME_TIMEOUT = timeOut;
-    }
-
-    addEventListener('fetch', (event) => {
-        // Fail-safe in case of an unhandled exception
-        event.passThroughOnException();
-
-        if (HTTP_METHODS_JSTAG.includes(event.request.method)) {
-            const accept = event.request.headers.get('Accept');
-
-            // All of the major browsers advertise they are requesting HTML or CSS in the accept header.
-            // For any browsers that don't (curl, etc), they do not execute JS anyway.
-            if (accept != null && accept.includes('text/html')) {
-                /** @type Array<string> */
-                let mutations = [];
-
-                // If no JS key is defined, disable JS tag insertion.
-                if (DATADOME_JS_KEY !== '' && DATADOME_JS_KEY != null) {
-                    const url = new URL(event.request.url);
-
-                    // Exclude traffic.
-                    const shoudExcludeFromJSTagInjection =
-                        (DATADOME_JS_HOSTNAME_REGEX_EXCLUSION != null &&
-                            DATADOME_JS_HOSTNAME_REGEX_EXCLUSION.test(url.hostname)) ||
-                        (DATADOME_JS_URI_REGEX_EXCLUSION != null &&
-                            DATADOME_JS_URI_REGEX_EXCLUSION.test(url.pathname)) ||
-                        (DATADOME_JS_URL_REGEX_EXCLUSION != null &&
-                            DATADOME_JS_URL_REGEX_EXCLUSION.test(url.href));
-
-                    if (!shoudExcludeFromJSTagInjection) {
-                        const shouldInjectJSTag =
-                            DATADOME_JS_URL_REGEX == null ||
-                            (DATADOME_JS_URL_REGEX != null && DATADOME_JS_URL_REGEX.test(url.href));
-
-                        if (shouldInjectJSTag) {
-                            mutations.push('js-tag');
-                        }
-                    }
-                }
-
-                if (DATADOME_ENABLE_VOLATILE_SESSION) {
-                    mutations.push('volatile-session');
-                }
-
-                if (mutations.length > 0) {
-                    return event.respondWith(
-                        validateRequest(
-                            event.request,
-                            applyMutationHandler(mutations, nextHandler),
-                        ),
-                    );
-                }
-            }
-        }
-
-        event.respondWith(validateRequest(event.request, nextHandler));
-    });
-}
-
 export default {
-  async fetch(request, env, ctx) { // <--- env is available here
-    // Move these declarations INSIDE the fetch function:
-    const DATADOME_LICENSE_KEY = env.DATADOME_LICENSE_KEY; // <<< NEW LOCATION
-    let DATADOME_JS_KEY = 'YOUR_ACTUAL_DATADOME_CLIENT_SIDE_KEY_HERE'; // <<< NEW LOCATION (replace with your key)
+  async fetch(request, env, ctx) {
+    // --- DataDome Configuration Variables (Moved inside fetch) ---
+
+    // Server-side key: required to connect to DataDome's protection API.
+    const DATADOME_LICENSE_KEY = env.DATADOME_LICENSE_KEY;
+
+    // Client-side key: optional for automatic JS Tag insertion on HTML pages.
+    let DATADOME_JS_KEY = '13BF966546C2220DEC3BC09536AE84'; // <--- REPLACE THIS WITH YOUR CLIENT-SIDE KEY
 
     // URL used to download the JS Tag (Change default for 1rst party tag).
-    let DATADOME_JS_URL = 'https://js.datadome.co/tags.js'; // <<< NEW LOCATION
+    let DATADOME_JS_URL = 'https://js.datadome.co/tags.js';
 
     // URL used to send JS data (Used for 1rst party tag).
-    let DATADOME_JS_ENDPOINT = ''; // <<< NEW LOCATION
+    let DATADOME_JS_ENDPOINT = '';
 
     // Options for power users. Must be null or a string in JSON format.
-    let DATADOME_JS_TAG_OPTIONS = null; // <<< NEW LOCATION
+    let DATADOME_JS_TAG_OPTIONS = null;
 
     // API connection timeout in milliseconds (DATADOME_TIMEOUT).
-    let DATADOME_TIMEOUT = 300; // <<< NEW LOCATION
+    let DATADOME_TIMEOUT = 300;
 
     // Names of header values that will be logged with Logpush.
     /** @type Array<string> */
-    let DATADOME_LOG_VALUES = []; // <<< NEW LOCATION
+    let DATADOME_LOG_VALUES = [];
 
-    const HTTP_METHODS_JSTAG = ['GET', 'POST']; // <<< NEW LOCATION (if not already global const)
+    const HTTP_METHODS_JSTAG = ['GET', 'POST'];
 
-    // ... and so on for all global `let` variables that are set to default values ...
-    // Only const definitions like `datadomeContentType` etc. that do NOT use `env` can stay global.
-    // It's often safest to move all custom config variables inside `fetch` if they might interact with `env`.
+    // URIRegex (DATADOME_URI_REGEX) and URIRegexExclusion (DATADOME_URI_REGEX_EXCLUSION)
+    // are regex used to match URI.
+    //
+    // The logic is:
+    //   Does URI match with URIRegexExclusion if present?
+    //     if yes stop
+    //       if no Does URI match with URIRegex if present?
+    //       if no stop
+    //       if yes, send to API
+    //
+    // Example with a URIRegexExclusion:
+    //   DATADOME_URI_REGEX_EXCLUSION /\.(js|css|jpg|jpeg|png|ico|gif|tiff|svg|woff|woff2|ttf|eot|mp4|otf)$/
+    //
+    // Default behavior excludes static assets.
+    // To disable a regex, set null value.
+    let DATADOME_URI_REGEX = null;
+    let DATADOME_URL_REGEX = null;
+    let DATADOME_URI_REGEX_EXCLUSION =
+        /\.(avi|flv|mka|mkv|mov|mp4|mpeg|mpg|mp3|flac|ogg|ogm|opus|wav|webm|webp|bmp|gif|ico|jpeg|jpg|png|svg|svgz|swf|eot|otf|ttf|woff|woff2|css|less|js|map)$/i;
+    let DATADOME_HOSTNAME_REGEX_EXCLUSION = null;
+    let DATADOME_JS_HOSTNAME_REGEX_EXCLUSION = null;
+    let DATADOME_JS_URI_REGEX_EXCLUSION = null;
+    let DATADOME_URL_REGEX_EXCLUSION = null;
+    let DATADOME_JS_URL_REGEX = null;
+    let DATADOME_JS_URL_REGEX_EXCLUSION = null;
+    // List of IPs to exclude from DataDome protection. CIDR notation is accepted.
+    /** @type Array<string> */
+    let DATADOME_IP_FILTERING = null;
+    let DATADOME_ENABLE_DEBUGGING = false;
+    let DATADOME_ENABLE_GRAPHQL_SUPPORT = false;
+    let DATADOME_ENABLE_REFERRER_RESTORATION = false;
+    let DATADOME_ENABLE_VOLATILE_SESSION = false;
+    let DATADOME_MAXIMUM_BODY_SIZE = 25 * 1024; // 25 Kilobytes
 
-    // This block needs to be carefully moved as it refers to DATADOME_JS_ENDPOINT, tagOptions, DATADOME_ENABLE_VOLATILE_SESSION
+    // --- Tag Options Processing (Moved inside fetch) ---
     let tagOptions = DATADOME_JS_TAG_OPTIONS;
     if (
         (DATADOME_JS_ENDPOINT != null && DATADOME_JS_ENDPOINT !== '') ||
@@ -226,14 +112,17 @@ export default {
         tagOptions = JSON.stringify(tagOptionsObject);
     }
 
-    // Initialize IP Filtering (if used) needs to happen where DATADOME_IP_FILTERING is defined.
-    // If DATADOME_IP_FILTERING is a global `let` at the top,
-    // its initialization `initializeIPFilteringIndex()` might need to be called within fetch
-    // or a function called within fetch, or `datadomeIPFilteringIndex` needs to be passed.
-    // For now, let's focus on the 'env is not defined' error which is about direct `env` access.
+    // --- IP Filtering Initialization (Moved inside fetch) ---
+    if (DATADOME_IP_FILTERING != null) {
+        if (Array.isArray(DATADOME_IP_FILTERING)) {
+            initializeIPFilteringIndex();
+        } else {
+            DATADOME_IP_FILTERING = null;
+            console.log('DATADOME_IP_FILTERING must be an Array - IP Filtering is not effective');
+        }
+    }
 
-
-    // Your DataDome JS Tag constant also needs to be defined after DATADOME_JS_KEY and tagOptions are available:
+    // --- DataDome JS Tag HTML (Moved inside fetch) ---
     const DATADOME_JS_TAG = `
     <script>
         window.ddjskey = "${DATADOME_JS_KEY}";
@@ -243,19 +132,29 @@ export default {
     </script>
     `;
 
+    // --- Begin activateDataDome (Modified to be called from fetch) ---
+    // Override hard-coded parameters.
+    // const { licenseKey, timeOut } = options; // options not directly available here
 
-    // This is the core function from DataDome that handles the request validation.
-    // The second argument `env.ASSETS.fetch` is Cloudflare Pages' way of serving your static files
-    // when DataDome allows the request to pass.
+    // if (licenseKey != null) { // This block was problematic and is removed for good
+    //     DATADOME_LICENSE_KEY = licenseKey;
+    // }
+
+    // if (timeOut != null) { // This can stay, but DATADOME_TIMEOUT is already defined above
+    //     DATADOME_TIMEOUT = timeOut;
+    // }
+    // --- End activateDataDome section inlined logic ---
+
+
+    // --- Core Request Validation and Asset Serving ---
     return validateRequest(
       request,
-      // We apply mutations (like JS Tag injection) if the request passes DataDome's validation.
-      // The original activateDataDome handler passed `applyMutationHandler(mutations, nextHandler)`.
-      // Here, our `nextHandler` is effectively `env.ASSETS.fetch`.
+      // The applyMutationHandler ensures JS tag injection and volatile session handling.
+      // Its 'nextHandler' argument is now `env.ASSETS.fetch` to serve your static files.
       (req, opts) => processRequestWithMutations(req, ['js-tag', 'volatile-session'], opts, env.ASSETS.fetch)
     );
-  },
-};
+  }, // End of async fetch(request, env, ctx)
+}; // End of export default
 
 /**
  * Send request to DataDome API Server and process the response.
@@ -666,8 +565,8 @@ function getVolatileClientId(url) {
 
 /**
  * Returns a simple object with two properties:
- *   - The client ID from the `datadome` cookie.
- *   - The total length of the `Cookie` request header.
+ * - The client ID from the `datadome` cookie.
+ * - The total length of the `Cookie` request header.
  * @param {Request} request - Incoming client request.
  * @returns {{ clientId: string, cookiesLength: number }}
  */
@@ -1101,14 +1000,15 @@ async function collectGraphQL(request) {
 }
 
 // JS code to integrate DataDome's JS Tag in HTML pages.
-const DATADOME_JS_TAG = `
-<script>
-    window.ddjskey = "${DATADOME_JS_KEY}";
-    window.ddoptions = ${tagOptions ?? '{}'};
-    </script>
-    <script src="${DATADOME_JS_URL}" async>
-</script>
-`;
+// Moved inside fetch, so it will be defined there.
+// const DATADOME_JS_TAG = `
+// <script>
+//     window.ddjskey = "${DATADOME_JS_KEY}";
+//     window.ddoptions = ${tagOptions ?? '{}'};
+//     </script>
+//     <script src="${DATADOME_JS_URL}" async>
+// </script>
+// `;
 
 /**
  * Element handler for HTMLRewriter.
@@ -1324,7 +1224,7 @@ function ipv6ToHex(ipv6) {
             } else {
                 // fill in '::' with zeros
                 const missing = 8 - (arr[0].split(':').length + (arr[1]?.split(':').length || 0));
-                acc.push(Array(missing).fill('0'), part.split(':'));
+                acc.push(Array(missing).fill('0')); // Corrected line
             }
             return acc;
         }, [])
@@ -1428,7 +1328,7 @@ function isIPv6InCIDR(ip, cidr) {
  * to optimize the structure and make it faster to query
  */
 function initializeIPFilteringIndex() {
-    for (const entry of DATADOME_IP_FILTERING) {
+    for (const entry of DATADome_IP_FILTERING) {
         if (entry.includes('/')) {
             const [range] = entry.split('/');
             if (isIPv4(range)) {
