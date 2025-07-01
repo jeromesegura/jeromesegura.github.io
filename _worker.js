@@ -9,29 +9,6 @@
  * DataDome default config.
  */
 
-// Server-side key: required to connect to DataDome's protection API.
-const DATADOME_LICENSE_KEY = env.DATADOME_LICENSE_KEY;
-
-// Client-side key: optional for automatic JS Tag insertion on HTML pages.
-let DATADOME_JS_KEY = '13BF966546C2220DEC3BC09536AE84';
-
-// URL used to download the JS Tag (Change default for 1rst party tag).
-let DATADOME_JS_URL = 'https://js.datadome.co/tags.js';
-
-// URL used to send JS data (Used for 1rst party tag).
-let DATADOME_JS_ENDPOINT = '';
-
-// Options for power users. Must be null or a string in JSON format.
-let DATADOME_JS_TAG_OPTIONS = null;
-
-// API connection timeout in milliseconds (DATADOME_TIMEOUT).
-let DATADOME_TIMEOUT = 300;
-
-// Names of header values that will be logged with Logpush.
-/** @type Array<string> */
-let DATADOME_LOG_VALUES = [];
-
-const HTTP_METHODS_JSTAG = ['GET', 'POST'];
 
 // URIRegex (DATADOME_URI_REGEX) and URIRegexExclusion (DATADOME_URI_REGEX_EXCLUSION)
 // are regex used to match URI.
@@ -198,7 +175,75 @@ function activateDataDome(nextHandler, options = {}) {
 }
 
 export default {
-  async fetch(request, env, ctx) {
+  async fetch(request, env, ctx) { // <--- env is available here
+    // Move these declarations INSIDE the fetch function:
+    const DATADOME_LICENSE_KEY = env.DATADOME_LICENSE_KEY; // <<< NEW LOCATION
+    let DATADOME_JS_KEY = 'YOUR_ACTUAL_DATADOME_CLIENT_SIDE_KEY_HERE'; // <<< NEW LOCATION (replace with your key)
+
+    // URL used to download the JS Tag (Change default for 1rst party tag).
+    let DATADOME_JS_URL = 'https://js.datadome.co/tags.js'; // <<< NEW LOCATION
+
+    // URL used to send JS data (Used for 1rst party tag).
+    let DATADOME_JS_ENDPOINT = ''; // <<< NEW LOCATION
+
+    // Options for power users. Must be null or a string in JSON format.
+    let DATADOME_JS_TAG_OPTIONS = null; // <<< NEW LOCATION
+
+    // API connection timeout in milliseconds (DATADOME_TIMEOUT).
+    let DATADOME_TIMEOUT = 300; // <<< NEW LOCATION
+
+    // Names of header values that will be logged with Logpush.
+    /** @type Array<string> */
+    let DATADOME_LOG_VALUES = []; // <<< NEW LOCATION
+
+    const HTTP_METHODS_JSTAG = ['GET', 'POST']; // <<< NEW LOCATION (if not already global const)
+
+    // ... and so on for all global `let` variables that are set to default values ...
+    // Only const definitions like `datadomeContentType` etc. that do NOT use `env` can stay global.
+    // It's often safest to move all custom config variables inside `fetch` if they might interact with `env`.
+
+    // This block needs to be carefully moved as it refers to DATADOME_JS_ENDPOINT, tagOptions, DATADOME_ENABLE_VOLATILE_SESSION
+    let tagOptions = DATADOME_JS_TAG_OPTIONS;
+    if (
+        (DATADOME_JS_ENDPOINT != null && DATADOME_JS_ENDPOINT !== '') ||
+        DATADOME_ENABLE_VOLATILE_SESSION
+    ) {
+        let tagOptionsObject = {};
+        if (tagOptions != null && tagOptions !== '') {
+            try {
+                tagOptionsObject = JSON.parse(tagOptions);
+            } catch (e) {
+                console.log('Parsing error on DATADOME_JS_TAG_OPTIONS, ' + e);
+            }
+        }
+
+        if (DATADOME_JS_ENDPOINT) {
+            tagOptionsObject.endpoint = DATADOME_JS_ENDPOINT;
+        }
+        if (DATADOME_ENABLE_VOLATILE_SESSION) {
+            tagOptionsObject.volatileSession = true;
+        }
+        tagOptions = JSON.stringify(tagOptionsObject);
+    }
+
+    // Initialize IP Filtering (if used) needs to happen where DATADOME_IP_FILTERING is defined.
+    // If DATADOME_IP_FILTERING is a global `let` at the top,
+    // its initialization `initializeIPFilteringIndex()` might need to be called within fetch
+    // or a function called within fetch, or `datadomeIPFilteringIndex` needs to be passed.
+    // For now, let's focus on the 'env is not defined' error which is about direct `env` access.
+
+
+    // Your DataDome JS Tag constant also needs to be defined after DATADOME_JS_KEY and tagOptions are available:
+    const DATADOME_JS_TAG = `
+    <script>
+        window.ddjskey = "${DATADOME_JS_KEY}";
+        window.ddoptions = ${tagOptions ?? '{}'};
+        </script>
+        <script src="${DATADOME_JS_URL}" async>
+    </script>
+    `;
+
+
     // This is the core function from DataDome that handles the request validation.
     // The second argument `env.ASSETS.fetch` is Cloudflare Pages' way of serving your static files
     // when DataDome allows the request to pass.
