@@ -151,7 +151,7 @@ export default {
       request,
       // The applyMutationHandler ensures JS tag injection and volatile session handling.
       // Its 'nextHandler' argument is now `env.ASSETS.fetch` to serve your static files.
-      (req, opts) => processRequestWithMutations(req, ['js-tag', 'volatile-session'], opts, env.ASSETS.fetch)
+	  (req, opts) => processRequestWithMutations(req, ['js-tag', 'volatile-session'], opts, env.ASSETS.fetch, env)
     );
   }, // End of async fetch(request, env, ctx)
 }; // End of export default
@@ -1056,9 +1056,9 @@ class VolatileSessionRewriter {
  * @param {FetchFunction} [nextHandler] - Custom handler (on fetch) to call after the JS Tag insertion.
  * @returns {FetchFunction}
  */
-function applyMutationHandler(mutations, nextHandler) {
+function applyMutationHandler(mutations, nextHandler, env) { // Added 'env'
     return function (request, options = {}) {
-        return processRequestWithMutations(request, mutations, options, nextHandler);
+        return processRequestWithMutations(request, mutations, options, nextHandler, env); // Pass 'env'
     };
 }
 
@@ -1074,10 +1074,10 @@ async function processRequestWithMutations(
     enrichedRequest,
     mutations,
     options,
-    fetchHandler = globalThis.fetch,
+    fetchHandler, // No default here, we'll always pass env.ASSETS.fetch
+    env // Added 'env' here
 ) {
-    const response = await fetchHandler(enrichedRequest);
-
+    const response = await (fetchHandler || env.ASSETS.fetch)(enrichedRequest); // Use fetchHandler if provided, else env.ASSETS.fetch
     // We will insert the tag in *all* HTTP responses with HTML content type.
     if (response.ok) {
         const contentType = response.headers.get('content-type');
