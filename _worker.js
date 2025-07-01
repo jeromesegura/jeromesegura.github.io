@@ -13,7 +13,7 @@
 const DATADOME_LICENSE_KEY = env.DATADOME_LICENSE_KEY;
 
 // Client-side key: optional for automatic JS Tag insertion on HTML pages.
-let DATADOME_JS_KEY = 'YOUR_ACTUAL_DATADOME_CLIENT_SIDE_KEY_HERE'; // <--- REPLACE THIS WITH YOUR CLIENT-SIDE KEY
+let DATADOME_JS_KEY = '13BF966546C2220DEC3BC09536AE84';
 
 // URL used to download the JS Tag (Change default for 1rst party tag).
 let DATADOME_JS_URL = 'https://js.datadome.co/tags.js';
@@ -133,74 +133,84 @@ function activateDataDome(nextHandler, options = {}) {
     // Override hard-coded parameters.
     const { licenseKey, timeOut } = options;
 
-    // The problematic lines attempting to reassign DATADOME_LICENSE_KEY have been commented out.
-    // if (licenseKey != null) {
-    //     DATADOME_LICENSE_KEY = licenseKey;
-    // }
+    //if (licenseKey != null) {
+    //    DATADOME_LICENSE_KEY = licenseKey;
+    //}
 
     if (timeOut != null) {
         DATADOME_TIMEOUT = timeOut;
     }
 
-    // This addEventListener block will be replaced by the export default fetch handler
-    // eventListener('fetch', (event) => {
-    //     // Fail-safe in case of an unhandled exception
-    //     event.passThroughOnException();
+    addEventListener('fetch', (event) => {
+        // Fail-safe in case of an unhandled exception
+        event.passThroughOnException();
 
-    //     if (HTTP_METHODS_JSTAG.includes(event.request.method)) {
-    //         const accept = event.request.headers.get('Accept');
+        if (HTTP_METHODS_JSTAG.includes(event.request.method)) {
+            const accept = event.request.headers.get('Accept');
 
-    //         // All of the major browsers advertise they are requesting HTML or CSS in the accept header.
-    //         // For any browsers that don't (curl, etc), they do not execute JS anyway.
-    //         if (accept != null && accept.includes('text/html')) {
-    //             /** @type Array<string> */
-    //             let mutations = [];
+            // All of the major browsers advertise they are requesting HTML or CSS in the accept header.
+            // For any browsers that don't (curl, etc), they do not execute JS anyway.
+            if (accept != null && accept.includes('text/html')) {
+                /** @type Array<string> */
+                let mutations = [];
 
-    //             // If no JS key is defined, disable JS tag insertion.
-    //             if (DATADOME_JS_KEY !== '' && DATADOME_JS_KEY != null) {
-    //                 const url = new URL(event.request.url);
+                // If no JS key is defined, disable JS tag insertion.
+                if (DATADOME_JS_KEY !== '' && DATADOME_JS_KEY != null) {
+                    const url = new URL(event.request.url);
 
-    //                 // Exclude traffic.
-    //                 const shoudExcludeFromJSTagInjection =
-    //                     (DATADOME_JS_HOSTNAME_REGEX_EXCLUSION != null &&
-    //                         DATADOME_JS_HOSTNAME_REGEX_EXCLUSION.test(url.hostname)) ||
-    //                     (DATADOME_JS_URI_REGEX_EXCLUSION != null &&
-    //                         DATADOME_JS_URI_REGEX_EXCLUSION.test(url.pathname)) ||
-    //                     (DATADOME_JS_URL_REGEX_EXCLUSION != null &&
-    //                         DATADOME_JS_URL_REGEX_EXCLUSION.test(url.href));
+                    // Exclude traffic.
+                    const shoudExcludeFromJSTagInjection =
+                        (DATADOME_JS_HOSTNAME_REGEX_EXCLUSION != null &&
+                            DATADOME_JS_HOSTNAME_REGEX_EXCLUSION.test(url.hostname)) ||
+                        (DATADOME_JS_URI_REGEX_EXCLUSION != null &&
+                            DATADOME_JS_URI_REGEX_EXCLUSION.test(url.pathname)) ||
+                        (DATADOME_JS_URL_REGEX_EXCLUSION != null &&
+                            DATADOME_JS_URL_REGEX_EXCLUSION.test(url.href));
 
-    //                 if (!shoudExcludeFromJSTagInjection) {
-    //                     const shouldInjectJSTag =
-    //                         DATADOME_JS_URL_REGEX == null ||
-    //                         (DATADOME_JS_URL_REGEX != null && DATADOME_JS_URL_REGEX.test(url.href));
+                    if (!shoudExcludeFromJSTagInjection) {
+                        const shouldInjectJSTag =
+                            DATADOME_JS_URL_REGEX == null ||
+                            (DATADOME_JS_URL_REGEX != null && DATADOME_JS_URL_REGEX.test(url.href));
 
-    //                     if (shouldInjectJSTag) {
-    //                         mutations.push('js-tag');
-    //                     }
-    //                 }
-    //             }
+                        if (shouldInjectJSTag) {
+                            mutations.push('js-tag');
+                        }
+                    }
+                }
 
-    //             if (DATADOME_ENABLE_VOLATILE_SESSION) {
-    //                 mutations.push('volatile-session');
-    //             }
+                if (DATADOME_ENABLE_VOLATILE_SESSION) {
+                    mutations.push('volatile-session');
+                }
 
-    //             if (mutations.length > 0) {
-    //                 return event.respondWith(
-    //                     validateRequest(
-    //                         event.request,
-    //                         applyMutationHandler(mutations, nextHandler),
-    //                     ),
-    //                 );
-    //             }
-    //         }
-    //     }
+                if (mutations.length > 0) {
+                    return event.respondWith(
+                        validateRequest(
+                            event.request,
+                            applyMutationHandler(mutations, nextHandler),
+                        ),
+                    );
+                }
+            }
+        }
 
-    //     event.respondWith(validateRequest(event.request, nextHandler));
-    // });
+        event.respondWith(validateRequest(event.request, nextHandler));
+    });
 }
 
-// The original `if (typeof __webpack_require__ !== 'function') { activateDataDome(); }` is replaced
-// by the standard Cloudflare Worker export default fetch handler.
+export default {
+  async fetch(request, env, ctx) {
+    // This is the core function from DataDome that handles the request validation.
+    // The second argument `env.ASSETS.fetch` is Cloudflare Pages' way of serving your static files
+    // when DataDome allows the request to pass.
+    return validateRequest(
+      request,
+      // We apply mutations (like JS Tag injection) if the request passes DataDome's validation.
+      // The original activateDataDome handler passed `applyMutationHandler(mutations, nextHandler)`.
+      // Here, our `nextHandler` is effectively `env.ASSETS.fetch`.
+      (req, opts) => processRequestWithMutations(req, ['js-tag', 'volatile-session'], opts, env.ASSETS.fetch)
+    );
+  },
+};
 
 /**
  * Send request to DataDome API Server and process the response.
@@ -611,8 +621,8 @@ function getVolatileClientId(url) {
 
 /**
  * Returns a simple object with two properties:
- * - The client ID from the `datadome` cookie.
- * - The total length of the `Cookie` request header.
+ *   - The client ID from the `datadome` cookie.
+ *   - The total length of the `Cookie` request header.
  * @param {Request} request - Incoming client request.
  * @returns {{ clientId: string, cookiesLength: number }}
  */
@@ -1269,4 +1279,163 @@ function ipv6ToHex(ipv6) {
             } else {
                 // fill in '::' with zeros
                 const missing = 8 - (arr[0].split(':').length + (arr[1]?.split(':').length || 0));
-                acc.push(Array(missing).fill('0
+                acc.push(Array(missing).fill('0'), part.split(':'));
+            }
+            return acc;
+        }, [])
+        .flat();
+
+    return expanded.map((block) => block.padStart(4, '0')).join('');
+}
+
+/**
+ * Generates a hexadecimal mask for a given prefix length.
+ * @param {number} prefixLength - The CIDR prefix length.
+ * @returns {string} - The hexadecimal mask.
+ */
+function generateMaskHex(prefixLength) {
+    // number of digits set to F (all bits are 1)
+    const fullHexDigits = Math.floor(prefixLength / 4);
+    // number of remaining bits
+    const partialBits = prefixLength % 4;
+
+    const mask = 'F'.repeat(fullHexDigits);
+    if (partialBits > 0) {
+        const partialHex = parseInt('1'.repeat(partialBits).padEnd(4, '0'), 2)
+            .toString(16)
+            .toUpperCase();
+        return (mask + partialHex).padEnd(32, '0');
+    }
+
+    return mask.padEnd(32, '0');
+}
+
+/**
+ * Applies a hexadecimal mask to an IPv6 hexadecimal string.
+ * @param {string} ip - The IPv6 address in hexadecimal.
+ * @param {string} mask - The CIDR mask in hexadecimal.
+ * @returns {string} - The masked IPv6 address in hexadecimal.
+ */
+function applyMaskHexa(ip, mask) {
+    let result = '';
+    for (let i = 0; i < ip.length; i++) {
+        const maskedDigit = parseInt(ip[i], 16) & parseInt(mask[i], 16);
+        result += maskedDigit.toString(16).toUpperCase();
+    }
+    return result;
+}
+
+/**
+ * Checks if an IPv4 address is is a given CIDR range.
+ * @param {string} ip - The IPv4 address to check.
+ * @param {string} cidr - The CIDR range, eg '192.168.1.0/24'.
+ * @returns {boolean} - True if the IPv4 is in the range.
+ */
+function isIPv4InCIDR(ip, cidr) {
+    const [range, prefixLength] = cidr.split('/');
+    // left-shifting 1 by (32 - prefixLength), subtracting 1 to get the corresponding bitmask, and inverting the bits to form the mask
+    const mask = ~((1 << (32 - prefixLength)) - 1);
+
+    const ipInt = ipv4ToInt(ip); // Convert IP to integer
+    const rangeInt = ipv4ToInt(range); // Convert CIDR base range to integer
+
+    // Check if the IP matches the CIDR range using the mask
+    return (ipInt & mask) === (rangeInt & mask);
+}
+
+/**
+ * Sorts an array of CIDR ranges by their prefix lengths in ascending order
+ * so that wider ranges come first.
+ *
+ * @param {string} a - CIDR range, eg '2001:db8::/32'.
+ * @param {string} b - CIDR range, eg '192.168.1.0/24'.
+ * @returns {number}
+ */
+function sortRanges(a, b) {
+    const prefixA = parseInt(a.split('/')[1], 10);
+    const prefixB = parseInt(b.split('/')[1], 10);
+    return prefixA - prefixB;
+}
+
+/**
+ * Checks if an IPv6 address is in a given CIDR range.
+ * @param {string} ip - The IPv6 address to check.
+ * @param {string} cidr - The CIDR range, eg '2001:db8::/32'.
+ * @returns {boolean} - True if the IPv6 is in the range.
+ */
+function isIPv6InCIDR(ip, cidr) {
+    const [range, prefixLength] = cidr.split('/');
+    const maskLength = parseInt(prefixLength, 10);
+
+    // Convert the IPv6 address and range to hexadecimal strings
+    const ipHex = ipv6ToHex(ip);
+    const rangeHex = ipv6ToHex(range);
+
+    // Generate the CIDR mask as a hexadecimal string
+    const maskHex = generateMaskHex(maskLength);
+
+    // Check if the masked IP matches the masked range
+    return applyMaskHexa(ipHex, maskHex) === applyMaskHexa(rangeHex, maskHex);
+}
+
+/**
+ * Initializes an index based on DATADOME_IP_FILTERING to group IPs and ranges
+ * to optimize the structure and make it faster to query
+ */
+function initializeIPFilteringIndex() {
+    for (const entry of DATADOME_IP_FILTERING) {
+        if (entry.includes('/')) {
+            const [range] = entry.split('/');
+            if (isIPv4(range)) {
+                datadomeIPFilteringIndex.ipv4Ranges.push(entry);
+            } else if (isIPv6(range)) {
+                datadomeIPFilteringIndex.ipv6Ranges.push(entry);
+            }
+        } else {
+            if (isIPv4(entry)) {
+                datadomeIPFilteringIndex.ipv4Exact.add(entry);
+            } else if (isIPv6(entry)) {
+                datadomeIPFilteringIndex.ipv6Exact.add(entry);
+            }
+        }
+    }
+
+    // Sort CIDR ranges by prefix length so larger ranges come first
+    datadomeIPFilteringIndex.ipv4Ranges.sort(sortRanges);
+
+    datadomeIPFilteringIndex.ipv6Ranges.sort(sortRanges);
+}
+
+/**
+ * Determines if a given IP is in DATADOME_IP_FILTERING CIDR ranges.
+ * @param {string} ip - The IP address to check (IPv4 or IPv6).
+ * @returns {boolean} - True if the IP is in any of the CIDR ranges, otherwise false.
+ */
+function isIPinDataDomeFiltering(ip) {
+    if (isIPv4(ip)) {
+        // Exact matches
+        if (datadomeIPFilteringIndex.ipv4Exact.has(ip)) {
+            return true;
+        }
+        // CIDR
+        for (const cidr of datadomeIPFilteringIndex.ipv4Ranges) {
+            if (isIPv4InCIDR(ip, cidr)) {
+                return true;
+            }
+        }
+    }
+    if (isIPv6(ip)) {
+        // Exact matches
+        if (datadomeIPFilteringIndex.ipv6Exact.has(ip)) {
+            return true;
+        }
+        // CIDR
+        for (const cidr of datadomeIPFilteringIndex.ipv6Ranges) {
+            if (isIPv6InCIDR(ip, cidr)) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
