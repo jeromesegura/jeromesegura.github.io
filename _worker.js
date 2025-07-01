@@ -133,9 +133,9 @@ function activateDataDome(nextHandler, options = {}) {
     // Override hard-coded parameters.
     const { licenseKey, timeOut } = options;
 
-    if (licenseKey != null) {
-        DATADOME_LICENSE_KEY = licenseKey;
-    }
+    //if (licenseKey != null) {
+    //    DATADOME_LICENSE_KEY = licenseKey;
+    //}
 
     if (timeOut != null) {
         DATADOME_TIMEOUT = timeOut;
