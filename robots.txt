@@ -1,2 +1,3 @@
 User-agent: *
 Disallow: /some_folder/
+Disallow: /secret_folder/
