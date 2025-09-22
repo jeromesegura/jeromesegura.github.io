@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nike Air Zoom - Product Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .product-images {
+            flex: 1;
+            min-width: 300px;
+            margin-right: 20px;
+        }
+        .main-image img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ddd;
+            margin-bottom: 10px;
+        }
+        .thumbnail-images {
+            display: flex;
+            gap: 10px;
+        }
+        .thumbnail-images img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border: 1px solid #ddd;
+            cursor: pointer;
+        }
+        .product-details {
+            flex: 2;
+            min-width: 400px;
+        }
+        h1 {
+            color: #222;
+            margin-top: 0;
+        }
+        .price {
+            font-size: 1.8em;
+            color: #e44d26;
+            margin-bottom: 15px;
+        }
+        .description {
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .size-selector, .color-selector {
+            margin-bottom: 15px;
+        }
+        .size-selector select, .color-selector select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+        .add-to-cart-btn {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .add-to-cart-btn:hover {
+            background-color: #0056b3;
+        }
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 20px;
+            background-color: #333;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="product-images">
+            <div class="main-image">
+                <img id="current-product-image" src="nike_main.png" alt="Nike Air Zoom Main View">
+            </div>
+            <div class="thumbnail-images">
+                <img src="nike_main.png" alt="Nike Air Zoom Thumbnail 1" onclick="changeMainImage(this.src)">
+                <img src="nike_side.png" alt="Nike Air Zoom Thumbnail 2" onclick="changeMainImage(this.src)">
+                <img src="nike_detail.png" alt="Nike Air Zoom Thumbnail 3" onclick="changeMainImage(this.src)">
+            </div>
+        </div>
+        <div class="product-details">
+            <h1>Nike Air Zoom Pegasus 38</h1>
+            <p class="price">$120.00</p>
+            <p class="description">
+                The Nike Air Zoom Pegasus 38 continues to put a spring in your step, using the same responsive foam as its predecessor. 
+                Mesh in the upper combines the comfort and durability you want with a fit that's classic Pegasus. 
+                Inspired by the iconic running shoe, this version offers a snug, secure fit for a variety of runs.
+            </p>
+
+            <div class="size-selector">
+                <label for="size">Size:</label>
+                <select id="size">
+                    <option value="6">US M 6</option>
+                    <option value="7">US M 7</option>
+                    <option value="8">US M 8</option>
+                    <option value="9" selected>US M 9</option>
+                    <option value="10">US M 10</option>
+                    <option value="11">US M 11</option>
+                </select>
+            </div>
+
+            <div class="color-selector">
+                <label for="color">Color:</label>
+                <select id="color">
+                    <option value="black" selected>Black/White</option>
+                    <option value="blue">Blue/Volt</option>
+                    <option value="red">Red/Black</option>
+                </select>
+            </div>
+            
+            <button class="add-to-cart-btn">Add to Cart</button>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2023 Nike, Inc. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        function changeMainImage(src) {
+            document.getElementById('current-product-image').src = src;
+        }
+    </script>
+
+</body>
+</html>
