@@ -3,11 +3,11 @@
 	<head>
         <script>
           (function() {
-            const hash = window.location.hash;
-            console.log('HEAD SCRIPT: Checking for text fragment. Hash is:', hash);
+            const currentURL = window.location.href;
+            console.log('Checking for special url...');
         
-            if (hash && hash.startsWith('#:~:text=')) {
-              console.log('HEAD SCRIPT: SUCCESS! Sending track request.');
+            if (currentURL && currentURL.includes('#:~:text=')) {
+              console.log('SUCCESS!');
               try {
                 const landingURL = window.location.href;
                 const referrerURL = document.referrer; 
@@ -17,7 +17,7 @@
               } catch (e) {
                 console.error('Text Fragment tracking failed:', e);
               }
-            }
+            
           })();
         </script>
 		<title>Jérôme Segura - cybersecurity</title>
