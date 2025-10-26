@@ -1,6 +1,25 @@
 <!DOCTYPE HTML>
 <html>
 	<head>
+        <script>
+          (function() {
+            const hash = window.location.hash;
+            console.log('HEAD SCRIPT: Checking for text fragment. Hash is:', hash);
+        
+            if (hash && hash.startsWith('#:~:text=')) {
+              console.log('HEAD SCRIPT: SUCCESS! Sending track request.');
+              try {
+                const landingURL = window.location.href;
+                const referrerURL = document.referrer; 
+                const tracker = new Image();
+                const logURL = `/pxl.gif?landing=${encodeURIComponent(landingURL)}&ref=${encodeURIComponent(referrerURL)}`;
+                tracker.src = logURL;
+              } catch (e) {
+                console.error('Text Fragment tracking failed:', e);
+              }
+            }
+          })();
+        </script>
 		<title>Jérôme Segura - cybersecurity</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
