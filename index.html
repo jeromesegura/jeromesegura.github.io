@@ -1,37 +1,37 @@
 <!DOCTYPE HTML>
 <html>
 	<head>
-        <script >
+        <script>
           (function() {
-            // 1. List of navigation entries
             const navEntries = performance.getEntriesByType('navigation');
             
-            // 2. Is API supported and has entries?
             if (navEntries && navEntries[0]) {
               
-              // 3. FULL original URL from the 'name' property
               const fullURL = navEntries[0].name; 
               console.log('HEAD SCRIPT: Full original URL is:', fullURL);
         
-              // 4. No decode, just check if string exists
               if (fullURL.includes('#:~:text=')) {
                 console.log('HEAD SCRIPT: SUCCESS! Sending track request.');
                 try {
-                  // Note: fullURL is a better "landing" URL than window.location.href donc modifiÃ©
                   const landingURL = fullURL; 
                   const referrerURL = document.referrer; 
-                  const tracker = new Image();
-                  const logURL = `/elie.gif?landing=${encodeURIComponent(landingURL)}&ref=${encodeURIComponent(referrerURL)}`;
-                  tracker.src = logURL;
+                  
+                  const logURL = `/elie.visits?landing=${encodeURIComponent(landingURL)}&ref=${encodeURIComponent(referrerURL)}`;
+        
+                  // --- REPLACEMENT CODE ---
+                  // Instead of new Image(), use fetch() with keepalive
+                  fetch(logURL, {
+                    method: 'GET',
+                    mode: 'no-cors', // Fire-and-forget, we don't care about the response
+                    keepalive: true  // Ensures the request completes even if the page unloads
+                  });
+                  // --- END REPLACEMENT ---
+        
                 } catch (e) {
                   console.error('Text Fragment tracking failed:', e);
                 }
-              } else {
-                // could not find string
-                console.log('Could not find string in: ' + fullURL)
               }
             } else {
-              // Fallback ou error if the API isn't supported
               console.log('HEAD SCRIPT: PerformanceNavigationTiming API not supported.');
             }
           })();
