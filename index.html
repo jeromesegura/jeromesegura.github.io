@@ -1,23 +1,35 @@
 <!DOCTYPE HTML>
 <html>
 	<head>
-        <script>
+        <script >
           (function() {
-            const currentURL = window.location.href;
-            console.log('Checking for special url...');
+            // 1. List of navigation entries
+            const navEntries = performance.getEntriesByType('navigation');
+            
+            // 2. Is API supported and has entries?
+            if (navEntries && navEntries[0]) {
+              
+              // 3. FULL original URL from the 'name' property
+              const fullURL = navEntries[0].name; 
+              console.log('HEAD SCRIPT: Full original URL is:', fullURL);
         
-            if (currentURL && currentURL.includes('segura')) {
-              console.log('SUCCESS!');
-              console.log(currentURL);
-              try {
-                const landingURL = window.location.href;
-                const referrerURL = document.referrer; 
-                const tracker = new Image();
-                const logURL = `/pxl.gif?landing=${encodeURIComponent(landingURL)}&ref=${encodeURIComponent(referrerURL)}`;
-                tracker.src = logURL;
-              } catch (e) {
-                console.error('Text Fragment tracking failed:', e);
+              // 4. No decode, just check if string exists
+              if (fullURL.includes(':#:~:text=')) {
+                console.log('HEAD SCRIPT: SUCCESS! Sending track request.');
+                try {
+                  // Note: fullURL is a better "landing" URL than window.location.href donc modifiÃ©
+                  const landingURL = fullURL; 
+                  const referrerURL = document.referrer; 
+                  const tracker = new Image();
+                  const logURL = `/elie.gif?landing=${encodeURIComponent(landingURL)}&ref=${encodeURIComponent(referrerURL)}`;
+                  tracker.src = logURL;
+                } catch (e) {
+                  console.error('Text Fragment tracking failed:', e);
+                }
               }
+            } else {
+              // Fallback ou error if the API isn't supported
+              console.log('HEAD SCRIPT: PerformanceNavigationTiming API not supported.');
             }
           })();
         </script>
