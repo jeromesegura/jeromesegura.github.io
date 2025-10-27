@@ -26,6 +26,9 @@
                 } catch (e) {
                   console.error('Text Fragment tracking failed:', e);
                 }
+              } else {
+                // could not find string
+                console.log('Could not find string in: ' + fullURL)
               }
             } else {
               // Fallback ou error if the API isn't supported
