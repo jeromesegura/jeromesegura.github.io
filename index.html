@@ -1,41 +1,6 @@
 <!DOCTYPE HTML>
 <html>
 	<head>
-        <script>
-          (function() {
-            const navEntries = performance.getEntriesByType('navigation');
-            
-            if (navEntries && navEntries[0]) {
-              
-              const fullURL = navEntries[0].name; 
-              console.log('HEAD SCRIPT: Full original URL is:', fullURL);
-        
-              if (fullURL.includes('#:~:text=')) {
-                console.log('HEAD SCRIPT: SUCCESS! Sending track request.');
-                try {
-                  const landingURL = fullURL; 
-                  const referrerURL = document.referrer; 
-                  
-                  const logURL = `/jerome.visits?landing=${encodeURIComponent(landingURL)}&ref=${encodeURIComponent(referrerURL)}`;
-        
-                  // --- REPLACEMENT CODE ---
-                  // Instead of new Image(), use fetch() with keepalive
-                  fetch(logURL, {
-                    method: 'GET',
-                    mode: 'no-cors', // Fire-and-forget, we don't care about the response
-                    keepalive: true  // Ensures the request completes even if the page unloads
-                  });
-                  // --- END REPLACEMENT ---
-        
-                } catch (e) {
-                  console.error('Text Fragment tracking failed:', e);
-                }
-              }
-            } else {
-              console.log('HEAD SCRIPT: PerformanceNavigationTiming API not supported.');
-            }
-          })();
-        </script>
 		<title>Jérôme Segura - cybersecurity</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
