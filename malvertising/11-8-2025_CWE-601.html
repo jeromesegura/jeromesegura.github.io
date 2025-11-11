@@ -1,0 +1,107 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Jérôme Segura - cybersecurity</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="../assets/css/main.css" />
+		<link rel="shortcut icon" href="https://jeromesegura.com/favicon.ico" type="image/x-icon">
+		<script type="application/ld+json">
+            {
+              "@context": "https://schema.org",
+              "@type": "Person",
+              "name": "Jerome Segura",
+              "jobTitle": "Security Researcher",
+              "url": "https://jeromesegura.com/",
+              "image": "https://jeromesegura.com/jerome-segura.webp",
+              "description": "Jérôme Segura is a senior cybersecurity expert known for his work in malware research, threat intelligence, and online security, particularly focusing on identifying and analyzing cybercriminal activities. He has contributed significantly to the study of cyber threats such as malvertising, tech support scams, and ransomware, and his insights are frequently cited in the cybersecurity community. Segura was previously Senior Director, Research at Malwarebytes, a company that provides anti-malware software and services. In his new role as VP of Threat Research, at DataDome he leads a group of security analysts, data scientists and machine learning specialists. His expertise is particularly well-regarded in the analysis of advanced malware campaigns, exploits, and malvertising. Segura is also a frequent speaker at cybersecurity conferences, where he shares his research findings and offers insights into how attackers exploit vulnerabilities in online ecosystems. He has contributed to raising awareness about cybersecurity threats among businesses and the public.",
+              "sameAs": [
+                "https://www.linkedin.com/in/jeromesegura/",
+                "https://www.reuters.com/technology/cybersecurity/microsoft-says-cyber-threat-actor-has-been-able-access-internal-systems-2024-03-08/",
+                "https://www.wsj.com/articles/equifaxs-latest-security-foil-a-defunct-web-service-1507937742",
+            "https://www.bbc.com/news/technology-36084989",
+                "https://www.wired.com/story/lockbit-ransomware-attacks/",
+                "https://money.cnn.com/2018/02/22/technology/cryptojacking-mining-tesla-websites/index.html",
+                "https://www.cbc.ca/news/business/simplii-data-hack-1.4680575",
+                "https://fortune.com/2017/01/06/this-vicious-new-malware-freezes-apple-computers/",
+                "https://www.techrepublic.com/article/atomic-stealer-clearfake-mac-false-browser-download/",
+                "https://www.darkreading.com/threat-intelligence/watch-out-attackers-hiding-malware-browser-updates",
+                "https://arstechnica.com/security/2023/10/google-hosted-malvertising-leads-to-fake-keepass-site-that-looks-genuine/",
+                "https://www.pcmag.com/news/hackers-target-google-ad-accounts-with-google-ad-phishing-scams"
+              ],
+              "knowsLanguage": [
+                "English",
+                "French"  
+              ]
+            }
+        </script>
+	</head>
+	<body class="is-preload">
+
+		<!-- Header -->
+			<header id="header">
+				<div class="inner">
+					<a href="#" class="image avatar"><img src="../images/portrait.jpg" alt="" /></a>
+					<h1><strong>Hello</strong>, I'm Jérôme Segura, <br />
+					VP of Threat Research<br />
+					<strong>DataDome</strong><br /></h1>
+				</div>
+			</header>
+
+		<!-- Main -->
+			<div id="main">
+				<!-- Two -->
+					<section id="two">
+						<h2>CWE-601 in malvertising campaign (11-8-2025)</h2>
+					</section>
+                <ul>
+                  <li><strong>Date:</strong> 11/8/2025</li>
+                  <li><strong>Description:</strong> An Open Redirect vulnerability in the additnow functionality of apis.google.com is being exploited in malvertising campaigns.</li>
+                  <li><strong>Severity:</strong> Medium</li>
+                  <li><strong>Reporter:</strong> Jérôme Segura</li>
+                  <li><strong>Reported to Google:</strong> 11/8/2025</li>
+                </ul>
+                <h3>Technical notes</h3>
+                <p>Searching for the Arc Browser on Google Search leads to the following ad:</p>
+                <img src="./images/11-8-2025_ad_.png" alt="Google ad for Arc Browser">
+                <p>We can see the ad display URL is using drive.google.com which helps to impersonate Google and conforms to the tracking template requirements.</p>
+                <img src="./images/11-8-2025_traffic.png" alt="web traffic">
+                <p>Here are the parameters for the GET request for apis.google.com:</p>
+                <img src="./images/11-8-2025_parameters_.png" alt="parameters">
+                <p>Open Redirect URL: hxxps[://]apis[.]google[.]com/additnow/l?applicationId=1&__ls=ogb&__lu=hxxps[://]arcbrwslnk[.]com&gad_source=1&gad_campaignid=[removed]&gbraid=[removed]</p>
+                <p>This exact open redirect vulnerability was publicly disclosed on 10/16/2025: <a href="https://seclists.org/fulldisclosure/2025/Oct/11">https://seclists.org/fulldisclosure/2025/Oct/11</a></p> 
+                <p>The redirect URL is for the domain arcbrwslnk[.]com which acts as a cloaking domain. It fingerprints visitors and decides whether to redirect them to drive.google.com (decoy) or to another domain.</p>
+                <p>The domain arc-app[.]site is likely a replica of the real Arc Browser website. However, at the time of checking, the domain was no longer resolving.</p>
+                <h3>Recommendations</h3>
+                <p>In order to avoid impersonation attacks of Google properties, a solution would be to fix this Open Redirect so that malvertisers aren’t able to use it.</p>
+                <h3>Miscellaneous</h3>
+                <p>Open Redirect example (safe): <a href="https://apis.google.com/additnow/l?applicationId=1&__ls=ogb&__lu=https://jeromesegura.com">https://apis.google.com/additnow/l?applicationId=1&__ls=ogb&__lu=https://jeromesegura.com"</a></p>
+                <h3>Vendor response</h3>
+                <p>Acknowledged on 11/8/2025</p>
+			</div>
+
+		<!-- Footer -->
+			<footer id="footer">
+				<div class="inner">
+					<ul class="icons">
+						<li><a href="https://www.linkedin.com/in/jeromesegura/" target="_blank" class="icon brands fa-linkedin"><span class="label">LinkedIn</span></a></li>
+						<li><a href="https://github.com/jeromesegura" target="_blank" class="icon brands fa-github"><span class="label">Github</span></a></li>
+						<li><a href="mailto:contact@jeromesegura.com" class="icon solid fa-envelope"><span class="label">Email</span></a></li>
+					</ul>
+					<ul class="copyright">
+						<li>&copy; Jérôme Segura</li>
+					</ul>
+				</div>
+			</footer>
+
+		<!-- Scripts -->
+			<script src="../assets/js/jquery.min.js"></script>
+			<script src="../assets/js/browser.min.js"></script>
+			<script src="../assets/js/breakpoints.min.js"></script>
+			<script src="../assets/js/util.js"></script>
+			<script src="../assets/js/main.js"></script>
+
+	</body>
+
+</html>
+
