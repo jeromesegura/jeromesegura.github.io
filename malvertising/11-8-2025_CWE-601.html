@@ -41,7 +41,7 @@
 		<!-- Header -->
 			<header id="header">
 				<div class="inner">
-					<a href="#" class="image avatar"><img src="../images/portrait.jpg" alt="" /></a>
+					<a href="/" class="image avatar"><img src="../images/portrait.jpg" alt="" /></a>
 					<h1><strong>Hello</strong>, I'm Jérôme Segura, <br />
 					VP of Threat Research<br />
 					<strong>DataDome</strong><br /></h1>
@@ -67,7 +67,7 @@
                 <p>We can see the ad display URL is using drive.google.com which helps to impersonate Google and conforms to the tracking template requirements.</p>
                 <img src="./images/11-8-2025_traffic.png" alt="web traffic">
                 <p>Here are the parameters for the GET request for apis.google.com:</p>
-                <img src="./images/11-8-2025_parameters_.png" alt="parameters">
+                <img src="images/11-8-2025_parameters_.png" alt="parameters">
                 <p>Open Redirect URL: hxxps[://]apis[.]google[.]com/additnow/l?applicationId=1&__ls=ogb&__lu=hxxps[://]arcbrwslnk[.]com&gad_source=1&gad_campaignid=[removed]&gbraid=[removed]</p>
                 <p>This exact open redirect vulnerability was publicly disclosed on 10/16/2025: <a href="https://seclists.org/fulldisclosure/2025/Oct/11">https://seclists.org/fulldisclosure/2025/Oct/11</a></p> 
                 <p>The redirect URL is for the domain arcbrwslnk[.]com which acts as a cloaking domain. It fingerprints visitors and decides whether to redirect them to drive.google.com (decoy) or to another domain.</p>
