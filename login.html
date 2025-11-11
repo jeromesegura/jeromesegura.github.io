@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Login</title>
+    <style>
+        /* Basic Reset and Setup */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        /* Login Container Styling */
+        .login-container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 24px;
+            color: #333;
+        }
+
+        /* Form Group and Input Styling */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box; 
+            font-size: 16px;
+        }
+
+        /* Submit Button Styling */
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #5cb85c; /* Green color */
+            border: none;
+            border-radius: 4px;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:disabled {
+            background-color: #999;
+            cursor: not-allowed;
+        }
+
+        button:hover:not(:disabled) {
+            background-color: #4cae4c;
+        }
+
+        /* Message Display */
+        #message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+            display: none; /* Hidden by default */
+        }
+
+        .success {
+            background-color: #dff0d8;
+            color: #3c763d;
+        }
+
+        .error {
+            background-color: #f2dede;
+            color: #a94442;
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <h2>Login</h2>
+    <form id="loginForm" onsubmit="handleLogin(event)">
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+
+        <button type="submit" id="loginButton">Log In</button>
+    </form>
+
+    <div id="message"></div>
+</div>
+
+<script>
+    /**
+     * Handles the login form submission by making an asynchronous POST request 
+     * to the Cloudflare Pages Function at /api/login.
+     */
+    function handleLogin(event) {
+        // Crucial: Prevents the default browser form submission (page reload)
+        event.preventDefault();
+
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const messageDiv = document.getElementById('message');
+        const loginButton = document.getElementById('loginButton');
+        
+        // Clear previous messages and set loading state
+        messageDiv.style.display = 'none';
+        messageDiv.textContent = '';
+        messageDiv.className = '';
+        loginButton.disabled = true;
+        loginButton.textContent = 'Logging in...';
+
+        // --- REAL POST REQUEST using fetch API ---
+        fetch('/api/login', { 
+            method: 'POST',
+            headers: {
+                // Important for the Cloudflare Worker to read the JSON body
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+                username: username,
+                password: password
+            }),
+        })
+        .then(response => {
+            // Check for non-2xx status codes (e.g., 401 Unauthorized)
+            if (!response.ok) {
+                // Parse the error message returned by the Worker and throw it
+                return response.json().then(err => { 
+                    throw new Error(err.message || 'Login failed due to an unknown server issue.');
+                });
+            }
+            // If response is 200 OK, parse the success data
+            return response.json(); 
+        })
+        .then(data => {
+            // SUCCESS
+            messageDiv.style.display = 'block';
+            messageDiv.className = 'success';
+            messageDiv.textContent = data.message || 'Login successful!';
+            // Add logic here to save session/token and redirect user
+        })
+        .catch(error => {
+            // ERROR (from 401 response or network failure)
+            messageDiv.style.display = 'block';
+            messageDiv.className = 'error';
+            messageDiv.textContent = error.message || 'A network error occurred.';
+        })
+        .finally(() => {
+            // Reset the button state
+            loginButton.disabled = false;
+            loginButton.textContent = 'Log In';
+        });
+    }
+</script>
+
+</body>
+</html>
