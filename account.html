@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account</title>
+    <style>
+        /* CSS is identical to login.html for consistent styling */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .login-container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 24px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box; 
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #337ab7; /* Blue color for account creation */
+            border: none;
+            border-radius: 4px;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:disabled {
+            background-color: #999;
+            cursor: not-allowed;
+        }
+
+        button:hover:not(:disabled) {
+            background-color: #286090;
+        }
+
+        #message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+            display: none;
+        }
+
+        .success {
+            background-color: #dff0d8;
+            color: #3c763d;
+        }
+
+        .error {
+            background-color: #f2dede;
+            color: #a94442;
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <h2>Create New Account</h2>
+    <form id="registerForm" onsubmit="handleRegistration(event)">
+        <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" name="email" required>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+
+        <button type="submit" id="registerButton">Register</button>
+    </form>
+
+    <div id="message"></div>
+</div>
+
+<script>
+    /**
+     * Handles the account registration form submission, sending a POST request 
+     * to the Cloudflare Pages Function at /api/register.
+     */
+    function handleRegistration(event) {
+        event.preventDefault();
+
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const messageDiv = document.getElementById('message');
+        const registerButton = document.getElementById('registerButton');
+        
+        // Clear previous messages and set loading state
+        messageDiv.style.display = 'none';
+        messageDiv.textContent = '';
+        messageDiv.className = '';
+        registerButton.disabled = true;
+        registerButton.textContent = 'Processing...';
+
+        // --- REAL POST REQUEST to the new /api/register endpoint ---
+        fetch('/api/register', { 
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+                email: email, // Changed from username
+                password: password
+            }),
+        })
+        .then(response => {
+            // Check for non-2xx status codes (e.g., 400 Bad Request, 409 Conflict)
+            if (!response.ok) {
+                return response.json().then(err => { 
+                    throw new Error(err.message || 'Registration failed.');
+                });
+            }
+            // Status 201 Created is expected on success
+            return response.json(); 
+        })
+        .then(data => {
+            // SUCCESS
+            messageDiv.style.display = 'block';
+            messageDiv.className = 'success';
+            messageDiv.textContent = data.message || 'Account created successfully!';
+            // Optional: Redirect to login page
+            // setTimeout(() => { window.location.href = "login.html"; }, 2000);
+        })
+        .catch(error => {
+            // ERROR
+            messageDiv.style.display = 'block';
+            messageDiv.className = 'error';
+            messageDiv.textContent = error.message || 'A network error occurred during registration.';
+        })
+        .finally(() => {
+            // Reset the button state
+            registerButton.disabled = false;
+            registerButton.textContent = 'Register';
+        });
+    }
+</script>
+
+</body>
+</html>
