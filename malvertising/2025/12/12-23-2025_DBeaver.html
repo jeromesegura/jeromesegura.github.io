@@ -1,0 +1,97 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Jérôme Segura - DBeaver malvertising campaign (12-23-2025)</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="../../../assets/css/main.css" />
+		<link rel="shortcut icon" href="https://jeromesegura.com/favicon.ico" type="image/x-icon">
+	</head>
+	<body class="is-preload">
+
+		<!-- Header -->
+			<header id="header">
+				<div class="inner">
+					<a href="/" class="image avatar"><img src="../../../images/portrait.jpg" alt="" /></a>
+					<h1><strong>Hello</strong>, I'm Jérôme Segura, <br />
+					VP of Threat Research<br />
+					<strong>DataDome</strong><br /></h1>
+				</div>
+			</header>
+
+		<!-- Main -->
+			<div id="main">
+				<!-- Two -->
+					<section id="two">
+						<h2>DBeaver malvertising campaign (12-23-2025)</h2>
+					</section>
+                <ul>
+                  <li><strong>Description:</strong>Malicious Google Search ad for DBeaver</li>
+                  <li><strong>Severity:</strong> Medium</li>
+                  <li><strong>Reporter:</strong> Jérôme Segura</li>
+                  <li><strong>Reported to Google:</strong> 12/21/2025</li>
+                </ul>
+                <h3>Google Search Ad</h3>
+                <img src="./images/12-23-2025_ad.png" alt="Google ad for DBeaver">
+                <h3>Traffic view</h3>
+                <img src="./images/12-23-2025_traffic.png" alt="Traffic">
+                <h3>Decoy page</h3>
+                <img src="./images/12-23-2025_fake.png" alt="Decoy page">
+                <h3>Payload</h3>
+                <img src="./images/12-23-2025_payload.png" alt="Decoy page">
+                <h3>IOCs</h3>
+                <table>
+                      <tbody>
+                        <tr>
+                          <td>Cloaking domain</td>
+                          <td>hxxps[://]soccerfamily[.]net/</td>
+                        </tr>
+                        <tr>
+                          <td>Decoy wbesite</td>
+                          <td>hxxps[://]dbeaverap[.]com/</td>
+                        </tr>
+                        <tr>
+                          <td>Tracker</td>
+                          <td>hxxps[://]adexload[.]com/track[.]php</td>
+                        </tr>
+                        <tr>
+                          <td>Token generation for unique link</td>
+                          <td>hxxps[://]adexload[.]com/get_token[.]php</td>
+                        </tr>
+                        <tr>
+                          <td>Payload URL</td>
+                          <td>hxxps[://]ipadvanced[.]s3[.]us-east-005[.]backblazeb2[.]com/applist/dbeaver-ce-25.3.0-x86_64-setup.msi</td>
+                        </tr>
+                        <tr>
+                          <td>Payload SHA256</td>
+                          <td>c8a2bde264c1898a38ef5fb2a5bff198c5c2908ec7a4ea66b59681ab9bf82f46</td>
+                        </tr>
+                      </tbody>
+                </table>
+                <a href="https://jeromesegura.com/malvertising/malvertising_index.html">Malvertising Research index</a>
+			</div>
+
+		<!-- Footer -->
+			<footer id="footer">
+				<div class="inner">
+					<ul class="icons">
+						<li><a href="https://www.linkedin.com/in/jeromesegura/" target="_blank" class="icon brands fa-linkedin"><span class="label">LinkedIn</span></a></li>
+						<li><a href="https://github.com/jeromesegura" target="_blank" class="icon brands fa-github"><span class="label">Github</span></a></li>
+						<li><a href="mailto:contact@jeromesegura.com" class="icon solid fa-envelope"><span class="label">Email</span></a></li>
+					</ul>
+					<ul class="copyright">
+						<li>&copy; Jérôme Segura</li>
+					</ul>
+				</div>
+			</footer>
+
+		<!-- Scripts -->
+			<script src="../../../assets/js/jquery.min.js"></script>
+			<script src="../../../assets/js/browser.min.js"></script>
+			<script src="../../../assets/js/breakpoints.min.js"></script>
+			<script src="../../../assets/js/util.js"></script>
+			<script src="../../../assets/js/main.js"></script>
+
+	</body>
+
+</html>
