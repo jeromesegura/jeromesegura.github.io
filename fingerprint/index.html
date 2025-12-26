@@ -1,3 +1,84 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Fingerprint Output</title>
+<style>
+  body {
+    margin: 0;
+    background: #0b0b0b;
+    color: #d4ffd4;
+    font-family: monospace;
+  }
+  #fingerprint-output {
+    white-space: pre-wrap;
+    padding: 16px;
+    margin: 16px;
+    border-radius: 8px;
+    background: #111;
+    font-size: 12px;
+    max-height: 90vh;
+    overflow: auto;
+  }
+</style>
+</head>
+<body>
+
+<script>
+/* ================= INTERCEPT + RENDER ================= */
+(function () {
+  function renderFingerprint(data) {
+    let parsed = data;
+    try {
+      if (typeof data === "string") {
+        parsed = JSON.parse(data);
+      }
+    } catch {}
+
+    let container = document.getElementById("fingerprint-output");
+    if (!container) {
+      container = document.createElement("div");
+      container.id = "fingerprint-output";
+      document.body.prepend(container);
+    }
+
+    container.textContent =
+      "Fingerprint result (captured locally):\n\n" +
+      JSON.stringify(parsed, null, 2);
+  }
+
+  /* fetch */
+  const originalFetch = window.fetch;
+  window.fetch = function (url, options = {}) {
+    if (options && options.method === "POST" && options.body) {
+      renderFingerprint(options.body);
+      return Promise.resolve(new Response(null, { status: 204 }));
+    }
+    return originalFetch.apply(this, arguments);
+  };
+
+  /* sendBeacon */
+  if (navigator.sendBeacon) {
+    const originalBeacon = navigator.sendBeacon.bind(navigator);
+    navigator.sendBeacon = function (url, data) {
+      renderFingerprint(data);
+      return true;
+    };
+  }
+
+  /* XMLHttpRequest */
+  const originalSend = XMLHttpRequest.prototype.send;
+  XMLHttpRequest.prototype.send = function (body) {
+    if (body) {
+      renderFingerprint(body);
+    }
+    return originalSend.apply(this, arguments);
+  };
+})();
+</script>
+
+<!-- ================= ORIGINAL FINGERPRINT SCRIPT ================= -->
 <script src="fingerprint.js"></script>
+
+</body>
 </html>
