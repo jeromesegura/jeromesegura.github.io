@@ -1,0 +1,91 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Jérôme Segura - KeePass malvertising campaign (01-11-2026)</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="../../../assets/css/main.css" />
+		<link rel="shortcut icon" href="https://jeromesegura.com/favicon.ico" type="image/x-icon">
+	</head>
+	<body class="is-preload">
+
+		<!-- Header -->
+			<header id="header">
+				<div class="inner">
+					<a href="/" class="image avatar"><img src="../../../images/portrait.jpg" alt="" /></a>
+					<h1><strong>Hello</strong>, I'm Jérôme Segura, <br />
+					VP of Threat Research<br />
+					<strong>DataDome</strong><br /></h1>
+				</div>
+			</header>
+
+		<!-- Main -->
+			<div id="main">
+				<!-- Two -->
+					<section id="two">
+						<h2>KeePass malvertising campaign (01-11-2026)</h2>
+					</section>
+                <ul>
+                  <li><strong>Description:</strong> Malicious Google Search ad for KeePass</li>
+                  <li><strong>Severity:</strong> Medium</li>
+                  <li><strong>Reporter:</strong> Jérôme Segura</li>
+                  <li><strong>Reported to Google:</strong> 01/11/2026</li>
+                </ul>
+                <h3>Google Search Ad</h3>
+                <img src="./images/01-11-2026_ad.png" alt="Google ad for KeePass">
+                <h3>Traffic view</h3>
+                <img src="./images/01-11-2026_traffic.png" alt="Traffic">
+                <h3>Fake Cloudflare</h3>
+                <img src="./images/01-11-2026_fakeCF.png" alt="Decoy page">
+                <h3>Decoy page</h3>
+                <img src="./images/01-11-2026_fake.png" alt="Decoy page">
+                <h3>Payload</h3>
+                <img src="./images/01-11-2026_payload.png" alt="Decoy page">
+                <h3>IOCs</h3>
+                <table>
+                      <tbody>
+                        <tr>
+                          <td>Cloaking domain</td>
+                          <td>hxxps[://]www[.]magyarrobot[.]hu/</td>
+                        </tr>
+                        <tr>
+                          <td>Decoy wbesite</td>
+                          <td>hxxps[://]keepacexc[.]com/</td>
+                        </tr>
+                        <tr>
+                          <td>Payload URL</td>
+                          <td>hxxps[://]keepacexc[.]com/dl[.]php?w=ok</td>
+                        </tr>
+                        <tr>
+                          <td>Payload SHA256</td>
+                          <td>94307191dba3962e5dc121fa2a984a784a951af0c0fc9229571898667e320578</td>
+                        </tr>
+                      </tbody>
+                </table>
+                <a href="https://jeromesegura.com/malvertising/malvertising_index.html">Malvertising Research index</a>
+			</div>
+
+		<!-- Footer -->
+			<footer id="footer">
+				<div class="inner">
+					<ul class="icons">
+						<li><a href="https://www.linkedin.com/in/jeromesegura/" target="_blank" class="icon brands fa-linkedin"><span class="label">LinkedIn</span></a></li>
+						<li><a href="https://github.com/jeromesegura" target="_blank" class="icon brands fa-github"><span class="label">Github</span></a></li>
+						<li><a href="mailto:contact@jeromesegura.com" class="icon solid fa-envelope"><span class="label">Email</span></a></li>
+					</ul>
+					<ul class="copyright">
+						<li>&copy; Jérôme Segura</li>
+					</ul>
+				</div>
+			</footer>
+
+		<!-- Scripts -->
+			<script src="../../../assets/js/jquery.min.js"></script>
+			<script src="../../../assets/js/browser.min.js"></script>
+			<script src="../../../assets/js/breakpoints.min.js"></script>
+			<script src="../../../assets/js/util.js"></script>
+			<script src="../../../assets/js/main.js"></script>
+
+	</body>
+
+</html>
